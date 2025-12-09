@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>MTN Rewards</title>
+    <style>
+        /* --- CSS STYLES (V12 Refined) --- */
+        /* RESET & BASIC SETUP */
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { 
+            background-color: #f5f7f9; 
+            color: #333; 
+            overflow-x: hidden; 
+            min-height: 100vh;
+        }
+        
+        /* COLORS */
+        :root {
+            --mtn-yellow: #ffcc00;
+            --mtn-dark: #1d1d1d;
+            --mtn-blue: #006699;
+            --white: #ffffff;
+            --red: #d93025; 
+            --green: #188038;
+            --progress-bg: #e0e0e0;
+        }
+
+        /* MAIN CONTAINER */
+        .main-wrapper {
+            max-width: 500px;
+            margin: 0 auto;
+            background: #fff;
+            box-shadow: 0 0 20px rgba(0,0,0,0.05);
+            min-height: 100vh;
+            padding-bottom: 40px; 
+        }
+
+        /* HEADER */
+        .header {
+            background-color: var(--mtn-yellow);
+            padding: 15px;
+            text-align: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+        .header h1 { font-size: 18px; font-weight: 800; color: var(--mtn-dark); margin: 0; text-transform: uppercase; letter-spacing: 0.5px; }
+        .header span { font-size: 12px; font-weight: 500; display: block; margin-top: 3px; opacity: 0.85; }
+
+        /* CONTENT PADDING */
+        .content-area { padding: 15px 20px; }
+
+        /* CARDS */
+        .card-section {
+            background: var(--white);
+            padding-bottom: 10px;
+            text-align: center; 
+        }
+
+        /* STATUS BAR */
+        .status-bar {
+            background: #f8f9fa;
+            color: #666;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 13px;
+            margin-top: 0px; 
+            margin-bottom: 15px; 
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid #eee;
+        }
+        .status-bar strong { color: var(--green); font-weight: 700; font-size: 14px; }
+
+        /* PROGRESS BAR */
+        .progress-container {
+            width: 100%;
+            background-color: var(--progress-bg);
+            border-radius: 10px;
+            margin-bottom: 20px;
+            height: 10px;
+            overflow: hidden;
+            display: none; 
+        }
+        .progress-bar {
+            height: 100%;
+            background-color: var(--green);
+            width: 0%;
+            transition: width 0.4s ease;
+            border-radius: 10px;
+        }
+
+        /* HERO SECTION */
+        .hero-title { font-size: 26px; color: var(--mtn-dark); margin-bottom: 10px; font-weight: 800; letter-spacing: -0.5px; }
+        
+        .hero-text { 
+            font-size: 16px; 
+            line-height: 1.5;
+            color: #444; 
+            margin-bottom: 15px; 
+            text-align: center; 
+        }
+        .clean-highlight { color: var(--red); font-weight: 700; }
+
+        /* GIFT IMAGE STYLE */
+        .gift-img { max-width: 280px; width: 100%; margin: 0 auto 15px auto; display: block; height: auto; }
+
+        /* QUESTION BOX */
+        .q-box { display: none; }
+        .q-box.active { display: block; animation: fadeIn 0.3s ease-in; }
+        
+        .q-title { font-size: 19px; font-weight: 700; margin-bottom: 20px; color: var(--mtn-dark); line-height: 1.3; text-align: left; }
+        
+        /* BUTTONS */
+        .btn-option {
+            display: block;
+            width: 100%;
+            padding: 16px 20px;
+            margin-bottom: 12px;
+            background: #f0f2f5;
+            color: var(--mtn-dark);
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            font-weight: 600;
+            text-align: left;
+            position: relative;
+            transition: background 0.2s;
+        }
+        .btn-option:active { background: #e0e2e5; }
+        .btn-option::after { content: '›'; position: absolute; right: 20px; color: #bbb; font-size: 22px; font-weight: 300; top: 50%; transform: translateY(-54%); }
+        
+        .btn-mtn { background: #fffdf0; border: 2px solid var(--mtn-yellow); }
+
+        /* LOADING SPINNER */
+        .loading-screen { display: none; text-align: center; padding: 40px 20px; }
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.05);
+            border-top: 4px solid var(--mtn-yellow);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 25px auto;
+        }
+        .loading-text { font-size: 18px; color: var(--mtn-dark); font-weight: 700; }
+        .loading-step { color: #888; margin-top: 12px; font-size: 14px; }
+
+        /* FINAL RESULT */
+        .final-screen { display: none; text-align: center; padding-top: 10px; }
+        .congrats-text { font-size: 26px; color: var(--green); font-weight: 800; margin-bottom: 10px; line-height: 1.2; }
+        
+        /* SCARCITY COUNTER */
+        .scarcity-box { 
+            background: #fff0f0; 
+            color: #d32f2f; 
+            padding: 12px; 
+            border-radius: 8px; 
+            font-weight: 600; 
+            font-size: 16px; 
+            margin-bottom: 20px; 
+            border: 2px solid #ffdad9; 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .pulse-dot { width: 10px; height: 10px; background: #d32f2f; border-radius: 50%; animation: pulse-red 1s infinite; }
+
+        /* CTA BUTTON - Centered Text Only */
+        .btn-cta {
+            background: var(--mtn-dark);
+            color: white;
+            font-size: 20px;
+            padding: 20px;
+            width: 100%;
+            border: none;
+            border-radius: 10px;
+            font-weight: 800;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+            text-decoration: none;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            display: flex;
+            justify-content: center; /* Center horizontally */
+            align-items: center;
+            line-height: 1;
+        }
+        .btn-cta-green { 
+            background: var(--green); 
+            box-shadow: 0 8px 25px rgba(24, 128, 56, 0.4); 
+            animation: pulse-btn 2s infinite; 
+            font-size: 22px; 
+        }
+
+        /* COMMENTS SECTION */
+        .comments-section { 
+            margin-top: 15px; 
+            padding-top: 20px; 
+            background: #fff; 
+            border-top: 3px solid #f5f7f9; 
+            text-align: left;
+        }
+        .comments-header { font-size: 16px; font-weight: 700; margin-bottom: 20px; display: flex; align-items: center; color: var(--mtn-dark); }
+        .comments-header span { color: #999; font-size: 12px; margin-left: auto; font-weight: 400; }
+        .comment-item { display: flex; margin-bottom: 20px; }
+        
+        /* Comment Load More Link */
+        .comment-more {
+            color: #3b5998;
+            font-weight: 600;
+            font-size: 14px;
+            margin-left: 55px; /* Align with text */
+            margin-bottom: 10px;
+            cursor: pointer;
+        }
+
+        /* AVATAR IMAGES */
+        .avatar { width: 40px; height: 40px; background: #f1f3f4; border-radius: 50%; margin-right: 12px; flex-shrink: 0; overflow: hidden; }
+        .avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .comment-content h4 { font-size: 14px; margin-bottom: 4px; color: #3b5998; font-weight: 700; }
+        .comment-content p { font-size: 13px; color: #333; line-height: 1.35; margin-bottom: 6px; }
+        .comment-meta { font-size: 11px; color: #9aa0a6; display: flex; gap: 15px; }
+        .comment-action { cursor: pointer; font-weight: 500; }
+        .footer { text-align: center; color: #aaa; font-size: 11px; margin-top: 30px; padding-bottom: 20px; }
+
+        /* Confetti Canvas */
+        #confetti-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 999999; }
+
+        /* ANIMATIONS */
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes pulse-btn { 0% { transform: scale(1); } 50% { transform: scale(1.02); } 100% { transform: scale(1); } }
+        @keyframes pulse-red { 0% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(0.8); } 100% { opacity: 1; transform: scale(1); } }
+    </style>
+</head>
+<body>
+
+    <div class="main-wrapper">
+        <div class="header">
+            <h1>MTN Rewards Program</h1>
+            <span>Nigeria Survey Center</span>
+        </div>
+
+        <div class="content-area">
+            
+            <div class="status-bar" id="topStatus">
+                <span>Date: <span id="currentDate"></span></span>
+                <span>Prizes Claimed: <strong id="giftsCount">518</strong></span>
+            </div>
+
+            <div class="progress-container" id="progressBarContainer">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+
+            <div class="card-section">
+                
+                <div id="step0" class="q-box active">
+                    <h2 class="hero-title">CONGRATULATIONS!</h2>
+                    
+                    <p class="hero-text">
+                        Dear MTN Customer<br>
+                        Thank you for your loyalty.<br>
+                        Complete this short survey to claim your <span class="clean-highlight">Cash Prize</span> or <span class="clean-highlight">iPhone 17 Pro Max</span>.
+                    </p>
+                    
+                    <img src="images/gift-reward.jpg" alt="Exclusive Gift" class="gift-img">
+                    
+                    <p style="font-size: 12px; color: #999; margin-bottom: 12px; font-weight: 500;">Survey takes less than 30 seconds.</p>
+                    <button class="btn-cta" onclick="startSurvey()" style="box-shadow: none;">START SURVEY NOW</button>
+                </div>
+
+                <div id="step1" class="q-box">
+                    <div class="q-title">Which network provider are you currently using?</div>
+                    <button class="btn-option btn-mtn" onclick="nextStep(2)">MTN Nigeria</button>
+                    <button class="btn-option" onclick="nextStep(2)">Airtel</button>
+                    <button class="btn-option" onclick="nextStep(2)">Glo / 9mobile</button>
+                </div>
+
+                <div id="step2" class="q-box">
+                    <div class="q-title">How long have you been using your SIM card?</div>
+                    <button class="btn-option" onclick="nextStep(3)">Less than 6 months</button>
+                    <button class="btn-option" onclick="nextStep(3)">1 - 2 Years</button>
+                    <button class="btn-option" onclick="nextStep(3)">More than 2 Years</button>
+                </div>
+
+                <div id="step3" class="q-box">
+                    <div class="q-title">Are you satisfied with MTN 3G/4G network speed?</div>
+                    <button class="btn-option" onclick="nextStep(4)">Very Satisfied</button>
+                    <button class="btn-option" onclick="nextStep(4)">Satisfied</button>
+                    <button class="btn-option" onclick="nextStep(4)">Sometimes Slow</button>
+                </div>
+
+                <div id="step4" class="q-box">
+                    <div class="q-title">Which reward do you prefer?</div>
+                    <button class="btn-option" onclick="finishSurvey()">Cash Prize</button>
+                    <button class="btn-option" onclick="finishSurvey()">iPhone 17 Pro Max</button>
+                    <button class="btn-option" onclick="finishSurvey()">Data Bundle</button>
+                </div>
+
+                <div id="loading" class="loading-screen">
+                    <div class="spinner"></div>
+                    <div class="loading-text">Verifying answers...</div>
+                    <div class="loading-step" id="loadingText">Please wait a moment.</div>
+                </div>
+
+                <div id="final" class="final-screen">
+                    <h2 class="congrats-text">VERIFICATION SUCCESSFUL!</h2>
+                    
+                    <p style="margin-bottom: 20px; font-size: 16px; color: #555; line-height: 1.4;">
+                        Your answers have been verified.<br>
+                        <span style="font-size:14px; color:#777;">Please proceed to the next page to claim your reward immediately.</span>
+                    </p>
+                    
+                    <div class="scarcity-box">
+                        <div class="pulse-dot"></div>
+                        Rewards Left: &nbsp;<span id="finalCounter" style="font-size: 20px; font-weight: 800;">198</span>
+                    </div>
+                    
+                    <p style="font-size: 13px; color: #999; margin-bottom: 20px;">
+                        *Inventory is running low due to high demand.
+                    </p>
+
+                    <a href="javascript:void(0)" onclick="goOffer()" class="btn-cta btn-cta-green">CLAIM REWARD NOW</a>
+                </div>
+
+            </div>
+
+            <div class="comments-section">
+                <div class="comments-header">
+                    Recent Comments <span>14k comments</span>
+                </div>
+
+                <div class="comment-item">
+                    <div class="avatar"><img src="images/user1.jpg" alt="User"></div>
+                    <div class="comment-content">
+                        <h4>Emeka Okafor</h4>
+                        <p>I thought this was fake, but I received the Cash Prize this morning! God bless MTN.</p>
+                        <div class="comment-meta">Just now · <span class="comment-action">Like</span></div>
+                    </div>
+                </div>
+
+                <div class="comment-item">
+                    <div class="avatar"><img src="images/user2.jpg" alt="User"></div>
+                    <div class="comment-content">
+                        <h4>Amara Bello</h4>
+                        <p>My brother won a phone last week, now it's my turn. Thank you!</p>
+                        <div class="comment-meta">4m ago · <span class="comment-action">Like</span></div>
+                    </div>
+                </div>
+
+                <div class="comment-item">
+                    <div class="avatar"><img src="images/user3.jpg" alt="User"></div>
+                    <div class="comment-content">
+                        <h4>Tunde Bakare</h4>
+                        <p>Very easy questions. Best network in NG.</p>
+                        <div class="comment-meta">9m ago · <span class="comment-action">Like</span></div>
+                    </div>
+                </div>
+                
+                <div class="comment-item">
+                    <div class="avatar"><img src="images/user4.jpg" alt="User"></div>
+                    <div class="comment-content">
+                        <h4>Yusuf Ibrahim</h4>
+                        <p>Got my iPhone just now! Delivery was fast.</p>
+                        <div class="comment-meta">12m ago · <span class="comment-action">Like</span></div>
+                    </div>
+                </div>
+
+                <div class="comment-more">View more comments...</div>
+
+            </div>
+            <div class="footer">© 2025 MTN Nigeria. Terms & Conditions Apply.</div>
+
+        </div>
+    </div>
+    
+    <canvas id="confetti-canvas"></canvas>
+
+    <script>
+        // --- CONFIGURATION ---
+        const CLICK_URL = "https://www.google.com"; // UPDATE YOUR LINK
+        
+        // --- UTILS ---
+        function getEl(id) { return document.getElementById(id); }
+        
+        const today = new Date();
+        const dateStr = String(today.getDate()).padStart(2, '0') + "/" + String(today.getMonth()+1).padStart(2, '0') + "/" + today.getFullYear();
+        getEl("currentDate").innerText = dateStr;
+
+        // --- NAVIGATION LOGIC ---
+        function startSurvey() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            getEl("step0").classList.remove("active");
+            getEl("step1").classList.add("active");
+            
+            getEl("progressBarContainer").style.display = "block";
+            updateProgress(1);
+        }
+
+        function nextStep(stepNum) {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            getEl("step" + (stepNum-1)).classList.remove("active");
+            getEl("step" + stepNum).classList.add("active");
+            updateProgress(stepNum);
+        }
+
+        function updateProgress(stepNum) {
+            const totalSteps = 4;
+            const percentage = (stepNum / totalSteps) * 100;
+            getEl("progressBar").style.width = percentage + "%";
+        }
+
+        // --- FINISH SURVEY ---
+        function finishSurvey() {
+            document.querySelectorAll(".q-box").forEach(b => b.classList.remove("active"));
+            getEl("progressBarContainer").style.display = "none"; 
+            getEl("loading").style.display = "block";
+            
+            setTimeout(() => { getEl("loadingText").innerText = "Checking inventory..."; }, 1500);
+            setTimeout(() => { getEl("loadingText").innerText = "Confirming eligibility..."; }, 3000);
+            
+            setTimeout(() => {
+                getEl("loading").style.display = "none";
+                getEl("final").style.display = "block";
+                getEl("topStatus").style.display = "none"; 
+                startFinalCountdown(); 
+                fireConfetti(); 
+            }, 4500);
+        }
+
+        function goOffer() {
+            window.location.href = CLICK_URL;
+        }
+
+        // --- COUNTERS ---
+        let giftsDistributed = 518;
+        let incrementCount = 0;
+        function increaseTopCounter() {
+            incrementCount++;
+            giftsDistributed++;
+            getEl("giftsCount").innerText = giftsDistributed;
+            let nextDelay;
+            if (incrementCount <= 10) { nextDelay = Math.random() * 700 + 800; } 
+            else { nextDelay = Math.random() * 2000 + 2500; }
+            setTimeout(increaseTopCounter, nextDelay);
+        }
+        setTimeout(increaseTopCounter, 2000);
+
+        // Bottom Counter: Inventory Drop
+        function startFinalCountdown() {
+            let remaining = 198;
+            const counterEl = getEl("finalCounter");
+            const drop = () => {
+                if (remaining <= 4) return;
+                remaining--;
+                counterEl.innerText = remaining;
+                let nextDelay;
+                if (remaining > 100) { nextDelay = Math.random() * 150 + 150; } 
+                else if (remaining > 20) { nextDelay = Math.random() * 400 + 400; } 
+                else { nextDelay = Math.random() * 1500 + 1500; }
+                setTimeout(drop, nextDelay);
+            };
+            setTimeout(drop, 500);
+        }
+
+        // --- CONFETTI ENGINE (Tamed) ---
+        const canvasEl = document.getElementById('confetti-canvas');
+        const ctx = canvasEl.getContext('2d');
+        let confettiActive = false;
+        let particles = [];
+
+        function resizeCanvas() {
+            canvasEl.width = window.innerWidth;
+            canvasEl.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvasEl.width;
+                // Spawn higher up to drift down
+                this.y = Math.random() * canvasEl.height - canvasEl.height; 
+                this.size = Math.random() * 9 + 5; 
+                // Reduced speed
+                this.speedY = Math.random() * 2 + 1; // Slower fall
+                this.speedX = Math.random() * 2 - 1; // Gentle drift
+                this.color = ['#ffcc00', '#ff0000', '#00cc00', '#0000ff', '#ff00ff', '#00ffff'][Math.floor(Math.random() * 6)];
+                this.rotation = Math.random() * 360;
+                this.rotationSpeed = Math.random() * 2 - 1; // Slower spin
+            }
+            update() {
+                this.y += this.speedY;
+                this.x += this.speedX;
+                this.rotation += this.rotationSpeed;
+                if (this.y > canvasEl.height) this.y = -10;
+            }
+            draw() {
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                ctx.rotate(this.rotation * Math.PI / 180);
+                ctx.fillStyle = this.color;
+                ctx.fillRect(-this.size / 2, -this.size / 2, this.size, this.size);
+                ctx.restore();
+            }
+        }
+
+        function animateConfetti() {
+            if (!confettiActive) return;
+            ctx.clearRect(0, 0, canvasEl.width, canvasEl.height);
+            particles.forEach(p => {
+                p.update();
+                p.draw();
+            });
+            requestAnimationFrame(animateConfetti);
+        }
+
+        function fireConfetti() {
+            particles = [];
+            // Reduced count to 150
+            for (let i = 0; i < 150; i++) { 
+                particles.push(new Particle());
+            }
+            confettiActive = true;
+            animateConfetti();
+            
+            setTimeout(() => {
+                confettiActive = false;
+                ctx.clearRect(0, 0, canvasEl.width, canvasEl.height);
+            }, 5000);
+        }
+    </script>
+</body>
+</html>
